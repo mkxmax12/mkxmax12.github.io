@@ -30,7 +30,7 @@
 
         async function loadModel() {
             try {
-                const modelURL = 'https://raw.githubusercontent.com/mkxmax12/mkxmax12.github.io/main/model.json'; // Update your actual GitHub model URL
+                const modelURL = 'https://github.com/mkxmax12/mkxmax12.github.io/blob/main/model.json'; // Update your actual GitHub model URL
                 model = await tf.loadGraphModel(modelURL);
                 console.log("✅ Model Loaded Successfully!");
             } catch (error) {
