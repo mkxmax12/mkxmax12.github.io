@@ -26,13 +26,13 @@
 
     <script>
         let model;
-        const modelURL = "https://raw.githubusercontent.com/mkxmax12/mkxmax12.github.io/main/model.json"; // Corrected GitHub model URL
-        const labels = ["Powdery Mildew", "Chili Leaf", "Antracts", "Healthy"]; // Updated labels from Teachable Machine
+        const modelURL = "https://raw.githubusercontent.com/mkxmax12/mkxmax12.github.io/main/model.json"; 
+        const labels = ["Powdery Mildew", "Chili Leaf", "Antracts", "Healthy"];
 
         async function loadModel() {
             try {
-                model = await tf.loadGraphModel(modelURL); // Load the TensorFlow Graph Model
-                console.log("✅ Model Loaded Successfully!");
+                model = await tf.loadGraphModel(modelURL);
+                console.log("✅ Model Loaded Successfully!", model);
             } catch (error) {
                 console.error("❌ Error loading model:", error);
                 alert("Error loading the model. Check the console for details.");
@@ -59,16 +59,22 @@
                 await loadModel();
             }
 
-            const image = document.getElementById("preview");
-            if (!image.src) {
+            const imageElement = document.getElementById("preview");
+            if (!imageElement.src) {
                 alert("⚠️ Please upload an image first.");
                 return;
             }
 
-            const tensor = tf.browser.fromPixels(image)
-                .resizeNearestNeighbor([224, 224]) // Image resizing
+            // Fix: Convert the image into a canvas for processing
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = 224;
+            canvas.height = 224;
+            ctx.drawImage(imageElement, 0, 0, canvas.width, canvas.height);
+
+            const tensor = tf.browser.fromPixels(canvas)
                 .toFloat()
-                .div(255.0) // Normalize pixels
+                .div(255.0)
                 .expandDims();
 
             try {
