@@ -10,6 +10,15 @@
     <form action="upload.php" method="POST" enctype="multipart/form-data">
         <input type="file" name="plantImage" accept="image/*">
         <button type="submit">Upload & Analyze</button>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script>
+async function loadModel() {
+    const modelURL = 'https://your-username.github.io/repository-name/model.json';
+    const model = await tf.loadLayersModel(modelURL);
+    console.log("Model Loaded Successfully!");
+}
+loadModel();
+</script>
     </form>
 </body>
 </html>
