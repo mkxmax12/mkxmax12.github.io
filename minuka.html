@@ -4,21 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plant Disease Detection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
 </head>
 <body>
     <h1>Upload an Image to Detect Plant Disease</h1>
-    <form action="upload.php" method="POST" enctype="multipart/form-data">
-        <input type="file" name="plantImage" accept="image/*">
-        <button type="submit">Upload & Analyze</button>
-        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-<script>
-async function loadModel() {
-    const modelURL = 'https://your-username.github.io/repository-name/model.json';
-    const model = await tf.loadLayersModel(modelURL);
-    console.log("Model Loaded Successfully!");
-}
-loadModel();
-</script>
+    <form id="uploadForm">
+        <input type="file" id="plantImage" accept="image/*">
+        <button type="button" onclick="analyzeImage()">Analyze</button>
     </form>
+
+    <p id="result"></p>
+
+    <script>
+    async function loadModel() {
+        const modelURL = 'https://your-username.github.io/repository-name/model.json';
+        const model = await tf.loadLayersModel(modelURL);
+        console.log("Model Loaded Successfully!");
+        return model;
+    }
+
+    async function analyzeImage() {
+        const model = await loadModel();
+        document.getElementById('result').innerText = "Model is ready to analyze!";
+    }
+    </script>
 </body>
 </html>
