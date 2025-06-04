@@ -26,12 +26,12 @@
 
     <script>
         let model;
-        const labels = ["powdery mildew","chili leaf","antracts","healthy"]; // Update with your Teachable Machine labels
+        const modelURL = "https://raw.githubusercontent.com/mkxmax12/mkxmax12.github.io/main/model.json"; // Corrected GitHub model URL
+        const labels = ["Powdery Mildew", "Chili Leaf", "Antracts", "Healthy"]; // Updated labels from Teachable Machine
 
         async function loadModel() {
             try {
-                const modelURL = 'https://github.com/mkxmax12/mkxmax12.github.io/blob/main/model.json'; // Update your actual GitHub model URL
-                model = await tf.loadGraphModel(modelURL);
+                model = await tf.loadGraphModel(modelURL); // Load the TensorFlow Graph Model
                 console.log("✅ Model Loaded Successfully!");
             } catch (error) {
                 console.error("❌ Error loading model:", error);
