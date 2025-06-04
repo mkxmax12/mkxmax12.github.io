@@ -26,12 +26,17 @@
 
     <script>
         let model;
-        const labels = ["Healthy", "Disease Type A", "Disease Type B", "Disease Type C"]; // Update this list based on your trained model
+        const labels = ["test1", "Disease Type A", "Disease Type B", "Disease Type C"]; // Update with your Teachable Machine labels
 
         async function loadModel() {
-            const modelURL = 'https://mkxmax12.github.io/mkxmax12.github.io/model.json'; // Replace with your actual GitHub model URL
-            model = await tf.loadLayersModel(modelURL);
-            console.log("✅ Model Loaded Successfully!");
+            try {
+                const modelURL = 'https://raw.githubusercontent.com/mkxmax12/mkxmax12.github.io/main/model.json'; // Update your actual GitHub model URL
+                model = await tf.loadGraphModel(modelURL);
+                console.log("✅ Model Loaded Successfully!");
+            } catch (error) {
+                console.error("❌ Error loading model:", error);
+                alert("Error loading the model. Check the console for details.");
+            }
         }
 
         function previewImage() {
@@ -61,20 +66,23 @@
             }
 
             const tensor = tf.browser.fromPixels(image)
-                .resizeBilinear([224, 224]) // Better resizing
+                .resizeNearestNeighbor([224, 224]) // Image resizing
                 .toFloat()
                 .div(255.0) // Normalize pixels
                 .expandDims();
 
-            const prediction = await model.predict(tensor);
-            const predictedIndex = prediction.argMax(1).dataSync()[0];
-
-            document.getElementById("prediction").innerText = labels[predictedIndex] || "Unknown";
-            console.log(`🔍 Predicted: ${labels[predictedIndex]}`);
+            try {
+                const prediction = await model.predict(tensor);
+                const predictedIndex = prediction.argMax(1).dataSync()[0];
+                document.getElementById("prediction").innerText = labels[predictedIndex] || "Unknown";
+                console.log(`🔍 Predicted: ${labels[predictedIndex]}`);
+            } catch (error) {
+                console.error("❌ Prediction error:", error);
+                alert("Error analyzing the image. Check console for details.");
+            }
         }
 
-        document.getElementById("analyzeBtn").addEventListener("click", analyzeImage); // Ensures button works
-
+        document.getElementById("analyzeBtn").addEventListener("click", analyzeImage);
     </script>
 </body>
 </html>
