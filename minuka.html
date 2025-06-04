@@ -17,7 +17,7 @@
     <h1>Upload an Image to Detect Plant Disease</h1>
     <form id="uploadForm">
         <input type="file" id="plantImage" accept="image/*" onchange="previewImage()">
-        <button type="button" onclick="analyzeImage()">Analyze</button>
+        <button type="button" id="analyzeBtn">Analyze</button>
     </form>
 
     <p><strong>Filename:</strong> <span id="fileName">None</span></p>
@@ -25,41 +25,56 @@
     <p><strong>Prediction:</strong> <span id="prediction">Waiting...</span></p>
 
     <script>
-    let model;
+        let model;
+        const labels = ["Healthy", "Disease Type A", "Disease Type B", "Disease Type C"]; // Update this list based on your trained model
 
-    async function loadModel() {
-        const modelURL = 'https://your-username.github.io/repository-name/model.json';
-        model = await tf.loadLayersModel(modelURL);
-        console.log("Model Loaded Successfully!");
-    }
-
-    function previewImage() {
-        const fileInput = document.getElementById("plantImage");
-        const file = fileInput.files[0];
-
-        if (file) {
-            document.getElementById("fileName").innerText = file.name;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById("preview").src = e.target.result;
-                document.getElementById("preview").style.display = "block";
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    async function analyzeImage() {
-        if (!model) {
-            await loadModel(); // Load the model if not already loaded
+        async function loadModel() {
+            const modelURL = 'https://mkxmax12.github.io/mkxmax12.github.io/model.json'; // Replace with your actual GitHub model URL
+            model = await tf.loadLayersModel(modelURL);
+            console.log("✅ Model Loaded Successfully!");
         }
 
-        const image = document.getElementById("preview");
-        const tensor = tf.browser.fromPixels(image).resizeNearestNeighbor([224, 224]).toFloat().expandDims();
+        function previewImage() {
+            const fileInput = document.getElementById("plantImage");
+            const file = fileInput.files[0];
 
-        const prediction = await model.predict(tensor);
-        const predictedIndex = prediction.argMax(1).dataSync()[0];
+            if (file) {
+                document.getElementById("fileName").innerText = file.name;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById("preview").src = e.target.result;
+                    document.getElementById("preview").style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        }
 
-        // Assuming Teachable Machine gives labels for predictions
-        const labels = ["Healthy", "Disease Type A", "Disease Type B", "Disease Type C"]; 
-        document.getElementById("prediction").innerText = labels[predictedIndex] || "Unknown";
-    }
+        async function analyzeImage() {
+            if (!model) {
+                await loadModel();
+            }
+
+            const image = document.getElementById("preview");
+            if (!image.src) {
+                alert("⚠️ Please upload an image first.");
+                return;
+            }
+
+            const tensor = tf.browser.fromPixels(image)
+                .resizeBilinear([224, 224]) // Better resizing
+                .toFloat()
+                .div(255.0) // Normalize pixels
+                .expandDims();
+
+            const prediction = await model.predict(tensor);
+            const predictedIndex = prediction.argMax(1).dataSync()[0];
+
+            document.getElementById("prediction").innerText = labels[predictedIndex] || "Unknown";
+            console.log(`🔍 Predicted: ${labels[predictedIndex]}`);
+        }
+
+        document.getElementById("analyzeBtn").addEventListener("click", analyzeImage); // Ensures button works
+
+    </script>
+</body>
+</html>
