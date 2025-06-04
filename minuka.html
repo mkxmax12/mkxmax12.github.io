@@ -5,28 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plant Disease Detection</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <style>
+        #preview {
+            display: none;
+            margin-top: 20px;
+            max-width: 300px;
+        }
+    </style>
 </head>
 <body>
     <h1>Upload an Image to Detect Plant Disease</h1>
     <form id="uploadForm">
-        <input type="file" id="plantImage" accept="image/*">
+        <input type="file" id="plantImage" accept="image/*" onchange="previewImage()">
         <button type="button" onclick="analyzeImage()">Analyze</button>
     </form>
 
-    <p id="result"></p>
+    <p><strong>Filename:</strong> <span id="fileName">None</span></p>
+    <img id="preview" src="" alt="Uploaded Image">
+    <p><strong>Prediction:</strong> <span id="prediction">Waiting...</span></p>
 
     <script>
+    let model;
+
     async function loadModel() {
         const modelURL = 'https://your-username.github.io/repository-name/model.json';
-        const model = await tf.loadLayersModel(modelURL);
+        model = await tf.loadLayersModel(modelURL);
         console.log("Model Loaded Successfully!");
-        return model;
+    }
+
+    function previewImage() {
+        const fileInput = document.getElementById("plantImage");
+        const file = fileInput.files[0];
+
+        if (file) {
+            document.getElementById("fileName").innerText = file.name;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById("preview").src = e.target.result;
+                document.getElementById("preview").style.display = "block";
+            };
+            reader.readAsDataURL(file);
+        }
     }
 
     async function analyzeImage() {
-        const model = await loadModel();
-        document.getElementById('result').innerText = "Model is ready to analyze!";
+        if (!model) {
+            await loadModel(); // Load the model if not already loaded
+        }
+
+        const image = document.getElementById("preview");
+        const tensor = tf.browser.fromPixels(image).resizeNearestNeighbor([224, 224]).toFloat().expandDims();
+
+        const prediction = await model.predict(tensor);
+        const predictedIndex = prediction.argMax(1).dataSync()[0];
+
+        // Assuming Teachable Machine gives labels for predictions
+        const labels = ["Healthy", "Disease Type A", "Disease Type B", "Disease Type C"]; 
+        document.getElementById("prediction").innerText = labels[predictedIndex] || "Unknown";
     }
-    </script>
-</body>
-</html>
